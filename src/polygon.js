@@ -16,11 +16,13 @@ goog.provide('weapi.Polygon');
 /**
  * @constructor
  */
-weapi.Polygon = function() {
+weapi.Polygon = function () {
   /**
    * @type {!Cesium.Polygon}
    */
-  this.primitive = new Cesium.Polygon({'asynchronous': false});
+  this.primitive = new Cesium.Polygon({
+    'asynchronous': false
+  });
 
   /**
    * @type {!Cesium.PolylineCollection}
@@ -53,7 +55,7 @@ weapi.Polygon = function() {
   this.primitive.material.uniforms['color'] = new Cesium.Color(1, 0, 0, .8);
 
   this.primitiveLine.material.uniforms['color'] =
-      new Cesium.Color(0, 0, 0, 1);
+    new Cesium.Color(0, 0, 0, 1);
   this.primitiveLine.width = 2;
 
   /**
@@ -85,7 +87,7 @@ weapi.Polygon = function() {
 /**
  * @return {boolean} True if the polygon is valid (non self-intersecting).
  */
-weapi.Polygon.prototype.isValid = function() {
+weapi.Polygon.prototype.isValid = function () {
   return this.valid_;
 };
 
@@ -93,7 +95,7 @@ weapi.Polygon.prototype.isValid = function() {
 /**
  * @return {boolean} True if the polygon CCW/CW orientation was just changed.
  */
-weapi.Polygon.prototype.orientationChanged = function() {
+weapi.Polygon.prototype.orientationChanged = function () {
   var oldVal = this.pointSwitchFlag_;
   this.pointSwitchFlag_ = false;
   return oldVal;
@@ -103,7 +105,7 @@ weapi.Polygon.prototype.orientationChanged = function() {
 /**
  * @return {number} Rough area of the polygon in m^2.
  */
-weapi.Polygon.prototype.getRoughArea = function() {
+weapi.Polygon.prototype.getRoughArea = function () {
   return this.roughArea_;
 };
 
@@ -115,7 +117,7 @@ weapi.Polygon.prototype.getRoughArea = function() {
  * @param {boolean=} opt_more More points coming?
  * @return {number} Fixed ID of the new point.
  */
-weapi.Polygon.prototype.addPoint = function(lat, lng, opt_parent, opt_more) {
+weapi.Polygon.prototype.addPoint = function (lat, lng, opt_parent, opt_more) {
   var vert = new weapi.Polygon.Node(lat, lng);
 
   if (this.numVertices_ == 0) {
@@ -124,9 +126,9 @@ weapi.Polygon.prototype.addPoint = function(lat, lng, opt_parent, opt_more) {
     vert.prev = vert;
   } else {
     var parent = this.vertices_[
-        goog.math.clamp(goog.isDefAndNotNull(opt_parent) ?
-                        opt_parent : Number.MAX_VALUE,
-                        0, this.vertices_.length - 1)];
+      goog.math.clamp(goog.isDefAndNotNull(opt_parent) ?
+        opt_parent : Number.MAX_VALUE,
+        0, this.vertices_.length - 1)];
     if (!parent) {
       parent = this.head_.prev;
     }
@@ -141,7 +143,7 @@ weapi.Polygon.prototype.addPoint = function(lat, lng, opt_parent, opt_more) {
 
   if (opt_more !== true) {
     this.rebufferPoints_();
-    this.solveTriangles_();
+    // this.solveTriangles_();
   }
 
   return vert.fixedId;
@@ -152,7 +154,7 @@ weapi.Polygon.prototype.addPoint = function(lat, lng, opt_parent, opt_more) {
  * @param {number} fixedId .
  * @return {!Array.<number>} .
  */
-weapi.Polygon.prototype.getNeighbors = function(fixedId) {
+weapi.Polygon.prototype.getNeighbors = function (fixedId) {
   var vert = this.vertices_[fixedId];
   if (!vert) return [];
 
@@ -165,7 +167,7 @@ weapi.Polygon.prototype.getNeighbors = function(fixedId) {
  * @param {number} fixedId .
  * @return {!Array.<number>} .
  */
-weapi.Polygon.prototype.getCoords = function(fixedId) {
+weapi.Polygon.prototype.getCoords = function (fixedId) {
   var vert = this.vertices_[fixedId];
   if (!vert) return [];
 
@@ -178,13 +180,16 @@ weapi.Polygon.prototype.getCoords = function(fixedId) {
  * in degrees
  * @return {!Array.<!{lat: number, lng: number}>} .
  */
-weapi.Polygon.prototype.getAllCoords = function() {
+weapi.Polygon.prototype.getAllCoords = function () {
   var mod = 180 / Math.PI;
   var result = [];
 
   var vrt = this.head_;
   do {
-    result.push({'lat': vrt.y * mod, 'lng': vrt.x * mod});
+    result.push({
+      'lat': vrt.y * mod,
+      'lng': vrt.x * mod
+    });
     vrt = vrt.next;
   } while (vrt != this.head_);
 
@@ -197,7 +202,7 @@ weapi.Polygon.prototype.getAllCoords = function() {
  * @param {number} lat in degrees.
  * @param {number} lng in degrees.
  */
-weapi.Polygon.prototype.movePoint = function(fixedId, lat, lng) {
+weapi.Polygon.prototype.movePoint = function (fixedId, lat, lng) {
   var vert = this.vertices_[fixedId];
   if (!vert) return;
 
@@ -211,7 +216,7 @@ weapi.Polygon.prototype.movePoint = function(fixedId, lat, lng) {
 /**
  * @param {number} fixedId .
  */
-weapi.Polygon.prototype.removePoint = function(fixedId) {
+weapi.Polygon.prototype.removePoint = function (fixedId) {
   var vert = this.vertices_[fixedId];
   if (vert) {
     if (this.head_ == vert) {
@@ -231,9 +236,11 @@ weapi.Polygon.prototype.removePoint = function(fixedId) {
 /**
  * @return {!Array.<number>} Coords of the average of the nodes.
  */
-weapi.Polygon.prototype.calcAverage = function() {
+weapi.Polygon.prototype.calcAverage = function () {
   if (!this.head_) return [0, 0];
-  var x = 0, y = 0, i = 0;
+  var x = 0,
+    y = 0,
+    i = 0;
   var vrt = this.head_;
   do {
     x += vrt.x;
@@ -242,20 +249,23 @@ weapi.Polygon.prototype.calcAverage = function() {
     vrt = vrt.next;
   } while (vrt != this.head_);
   i = i / 180 * Math.PI;
-  return [x/i, y/i];
+  return [x / i, y / i];
 };
 
 
 /**
  * @return {Array.<number>} Centroid of the polygon or null if not valid.
  */
-weapi.Polygon.prototype.calcCentroid = function() {
+weapi.Polygon.prototype.calcCentroid = function () {
   if (!this.isValid()) return null;
 
-  var x = 0, y = 0, area = 0;
+  var x = 0,
+    y = 0,
+    area = 0;
   var vrt = this.head_;
   do {
-    var p1 = vrt, p2 = vrt.next;
+    var p1 = vrt,
+      p2 = vrt.next;
     var f = p1.x * p2.y - p2.x * p1.y;
     x += (p1.x + p2.x) * f;
     y += (p1.y + p2.y) * f;
@@ -275,16 +285,16 @@ weapi.Polygon.prototype.calcCentroid = function() {
  * @param {number} lng in degrees.
  * @return {boolean} True if inside the polygon.
  */
-weapi.Polygon.prototype.isPointIn = function(lat, lng) {
+weapi.Polygon.prototype.isPointIn = function (lat, lng) {
   var p1x = lng / 180 * Math.PI;
   var p1y = lat / 180 * Math.PI;
 
-  var sign_ = function(p2, p3) {
+  var sign_ = function (p2, p3) {
     return (p1x - p3.x) * (p2.y - p3.y) -
-           (p2.x - p3.x) * (p1y - p3.y);
+      (p2.x - p3.x) * (p1y - p3.y);
   };
   var found = false;
-  goog.array.forEach(this.triangulation_, function(el, i, arr) {
+  goog.array.forEach(this.triangulation_, function (el, i, arr) {
     var b1 = sign_(el[0], el[1]) < 0;
     var b2 = sign_(el[1], el[2]) < 0;
     var b3 = sign_(el[2], el[0]) < 0;
@@ -301,18 +311,19 @@ weapi.Polygon.prototype.isPointIn = function(lat, lng) {
  * @param {!weapi.Polygon} other .
  * @return {boolean} True if the two polygons overlap.
  */
-weapi.Polygon.prototype.intersects = function(other) {
-  var lineInter = function(a, b, c, d) {
+weapi.Polygon.prototype.intersects = function (other) {
+  var lineInter = function (a, b, c, d) {
     //test ab<->cd intersection
     var denom = (d.y - c.y) * (b.x - a.x) - (d.x - c.x) * (b.y - a.y);
-    var aycy = (a.y - c.y), axcx = (a.x - c.x);
+    var aycy = (a.y - c.y),
+      axcx = (a.x - c.x);
     var p = ((d.x - c.x) * aycy - (d.y - c.y) * axcx) / denom;
     var t = ((b.x - a.x) * aycy - (b.y - a.y) * axcx) / denom;
 
     return (p > 0 && p < 1 && t > 0 && t < 1);
   };
-  var isPointIn = function(p, t) {
-    var sign_ = function(p2, p3) {
+  var isPointIn = function (p, t) {
+    var sign_ = function (p2, p3) {
       return (p.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p.y - p3.y);
     };
 
@@ -322,28 +333,28 @@ weapi.Polygon.prototype.intersects = function(other) {
 
     return (b1 == b2) && (b2 == b3);
   };
-  return goog.array.find(this.triangulation_, function(triA, iA, arrA) {
-    return goog.array.find(other.triangulation_, function(triB, iB, arrB) {
+  return goog.array.find(this.triangulation_, function (triA, iA, arrA) {
+    return goog.array.find(other.triangulation_, function (triB, iB, arrB) {
       // any of the edges intersect (3x3 possibilities)
       if (lineInter(triA[0], triA[1], triB[0], triB[1]) ||
-          lineInter(triA[0], triA[1], triB[1], triB[2]) ||
-          lineInter(triA[0], triA[1], triB[2], triB[0]) ||
-          lineInter(triA[1], triA[2], triB[0], triB[1]) ||
-          lineInter(triA[1], triA[2], triB[1], triB[2]) ||
-          lineInter(triA[1], triA[2], triB[2], triB[0]) ||
-          lineInter(triA[2], triA[0], triB[0], triB[1]) ||
-          lineInter(triA[2], triA[0], triB[1], triB[2]) ||
-          lineInter(triA[2], triA[0], triB[2], triB[0])) return true;
+        lineInter(triA[0], triA[1], triB[1], triB[2]) ||
+        lineInter(triA[0], triA[1], triB[2], triB[0]) ||
+        lineInter(triA[1], triA[2], triB[0], triB[1]) ||
+        lineInter(triA[1], triA[2], triB[1], triB[2]) ||
+        lineInter(triA[1], triA[2], triB[2], triB[0]) ||
+        lineInter(triA[2], triA[0], triB[0], triB[1]) ||
+        lineInter(triA[2], triA[0], triB[1], triB[2]) ||
+        lineInter(triA[2], triA[0], triB[2], triB[0])) return true;
 
       // all points of A are inside B
       if (isPointIn(triA[0], triB) &&
-          isPointIn(triA[1], triB) &&
-          isPointIn(triA[2], triB)) return true;
+        isPointIn(triA[1], triB) &&
+        isPointIn(triA[2], triB)) return true;
 
       // all points of B are inside A
       if (isPointIn(triB[0], triA) &&
-          isPointIn(triB[1], triA) &&
-          isPointIn(triB[2], triA)) return true;
+        isPointIn(triB[1], triA) &&
+        isPointIn(triB[2], triA)) return true;
 
       return false;
     }) !== null;
@@ -355,7 +366,7 @@ weapi.Polygon.prototype.intersects = function(other) {
  * Buffers the points into GPU buffer.
  * @private
  */
-weapi.Polygon.prototype.rebufferPoints_ = function() {
+weapi.Polygon.prototype.rebufferPoints_ = function () {
   var vertices = new Array();
 
   if (!this.head_) return;
@@ -387,10 +398,13 @@ weapi.Polygon.prototype.rebufferPoints_ = function() {
   } while (vrt != this.head_);
 
   var carteArray =
-      Cesium.Ellipsoid.WGS84.cartographicArrayToCartesianArray(cartoArray);
+    Cesium.Ellipsoid.WGS84.cartographicArrayToCartesianArray(cartoArray);
   this.primitive.positions = carteArray;
   //this.primitive.update();
-  carteArray.push(carteArray[0]);
+  // Dadadadadadadadadadadadadadadadad
+  // carteArray.push(carteArray[0]);
+  // Dadadadadadadadadadadadadadadadad
+
   this.primitiveLine.positions = carteArray;
 };
 
@@ -398,7 +412,8 @@ weapi.Polygon.prototype.rebufferPoints_ = function() {
 /**
  * @private
  */
-weapi.Polygon.prototype.solveTriangles_ = function() {
+weapi.Polygon.prototype.solveTriangles_ = function () {
+
   //return;
   var n = this.numVertices_;
   this.roughArea_ = 0;
@@ -438,7 +453,7 @@ weapi.Polygon.prototype.solveTriangles_ = function() {
     if (!this.valid_ && n == 4) {
       //although some lines intersect, we can still solve this for 4 points
       //  by simply swapping some points (unrolling around the clean edge)
-      var swapPoints = function(p1, p2) {
+      var swapPoints = function (p1, p2) {
         var p1_prev = p1.prev;
         var p2_next = p2.next;
         p1.prev = p2;
@@ -486,18 +501,20 @@ weapi.Polygon.prototype.solveTriangles_ = function() {
   }
 
   var triangles = [];
-  var addTriangle = goog.bind(function(v1, v2, v3) {
+  var addTriangle = goog.bind(function (v1, v2, v3) {
     triangles.push([v1.tmpId, v2.tmpId, v3.tmpId]);
     this.triangulation_.push([v1, v2, v3]);
 
     // Calculate triangle area using Heron's formula
-    var len = function(u, v) {
+    var len = function (u, v) {
       var x_ = u.projX - v.projX;
       var y_ = u.projY - v.projY;
       var z_ = u.projZ - v.projZ;
       return Math.sqrt(x_ * x_ + y_ * y_ + z_ * z_);
     };
-    var a = len(v1, v2), b = len(v2, v3), c = len(v3, v1);
+    var a = len(v1, v2),
+      b = len(v2, v3),
+      c = len(v3, v1);
     var s = (a + b + c) / 2;
     var T = Math.sqrt(s * (s - a) * (s - b) * (s - c));
     this.roughArea_ += T;
@@ -505,42 +522,52 @@ weapi.Polygon.prototype.solveTriangles_ = function() {
 
   // Triangulation -- ear clipping method
   if (n < 3) {
-  //triangles = [];
+    //triangles = [];
   } else if (n == 3) {
     addTriangle(this.head_, this.head_.prev, this.head_.next);
   } else {
     var head = this.head_;
 
-    var Area2 = function(a, b, c) { //Calulates signed area via cross product
+    var Area2 = function (a, b, c) { //Calulates signed area via cross product
       return -((b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y));
     };
 
-    var Left = function(a, b, c) {return (Area2(a, b, c) > 0);}; //c left of ab
-    var LeftOn = function(a, b, c) {return (Area2(a, b, c) >= 0);};
-    var Collinear = function(a, b, c) {return (Area2(a, b, c) == 0);};
-    var XOR = function(a, b) {return (a || b) && !(a && b);};
-
-    var IntersectProp = function(a, b, c, d) { //Check proper intersection
-      if (Collinear(a, b, c) || Collinear(a, b, d) ||
-          Collinear(c, d, a) || Collinear(c, d, b))
-        return false;
-      return XOR(Left(a, b, c), Left(a, b, d)) &&
-             XOR(Left(c, d, a), Left(c, d, b));
+    var Left = function (a, b, c) {
+      return (Area2(a, b, c) > 0);
+    }; //c left of ab
+    var LeftOn = function (a, b, c) {
+      return (Area2(a, b, c) >= 0);
+    };
+    var Collinear = function (a, b, c) {
+      return (Area2(a, b, c) == 0);
+    };
+    var XOR = function (a, b) {
+      return (a || b) && !(a && b);
     };
 
-    var InCone = function(a, b) { //Is line ab interal
-      var a0 = a._prev, a1 = a._next;
+    var IntersectProp = function (a, b, c, d) { //Check proper intersection
+      if (Collinear(a, b, c) || Collinear(a, b, d) ||
+        Collinear(c, d, a) || Collinear(c, d, b))
+        return false;
+      return XOR(Left(a, b, c), Left(a, b, d)) &&
+        XOR(Left(c, d, a), Left(c, d, b));
+    };
+
+    var InCone = function (a, b) { //Is line ab interal
+      var a0 = a._prev,
+        a1 = a._next;
       if (LeftOn(a, a1, a0))
         return Left(a, b, a0) && Left(b, a, a1);
       return !(LeftOn(a, b, a1) && LeftOn(b, a, a0));
     };
 
-    var Diagonalie = function(a, b) {
-      var c = head, c1;
+    var Diagonalie = function (a, b) {
+      var c = head,
+        c1;
       do {
         c1 = c._next;
         if ((c != a) && (c1 != a) && (c != b) && (c1 != b) &&
-            IntersectProp(a, b, c, c1)) {
+          IntersectProp(a, b, c, c1)) {
           return false;
         }
         c = c._next;
@@ -548,13 +575,13 @@ weapi.Polygon.prototype.solveTriangles_ = function() {
       return true;
     };
 
-    var Diagonal = function(a, b) {
+    var Diagonal = function (a, b) {
       return InCone(a, b) && InCone(b, a) && Diagonalie(a, b);
     };
 
     var v0, v1, v2, v3, v4;
 
-    goog.array.forEach(this.vertices_, function(el, i, arr) {
+    goog.array.forEach(this.vertices_, function (el, i, arr) {
       if (el) {
         el._next = el.next;
         el._prev = el.prev;
@@ -612,7 +639,7 @@ weapi.Polygon.prototype.solveTriangles_ = function() {
  * @param {weapi.Polygon.Node=} opt_prev .
  * @constructor
  */
-weapi.Polygon.Node = function(lat, lng, opt_next, opt_prev) {
+weapi.Polygon.Node = function (lat, lng, opt_next, opt_prev) {
   /** @type {number} */
   this.x = 0;
   /** @type {number} */
@@ -650,7 +677,7 @@ weapi.Polygon.Node = function(lat, lng, opt_next, opt_prev) {
  * @param {number} lat in degrees.
  * @param {number} lng in degrees.
  */
-weapi.Polygon.Node.prototype.setLatLng = function(lat, lng) {
+weapi.Polygon.Node.prototype.setLatLng = function (lat, lng) {
   this.x = lng / 180 * Math.PI;
   this.y = lat / 180 * Math.PI;
 
