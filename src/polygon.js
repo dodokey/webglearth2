@@ -143,6 +143,45 @@ weapi.Polygon.prototype.addPoint = function (lat, lng, opt_parent, opt_more) {
 
   if (opt_more !== true) {
     this.rebufferPoints_();
+    this.solveTriangles_();
+  }
+
+  return vert.fixedId;
+};
+
+//Dadadaadadadadadadaa
+/**
+ * @param {number} lat in degrees.
+ * @param {number} lng in degrees.
+ * @param {number=} opt_parent Defaults to the last point.
+ * @param {boolean=} opt_more More points coming?
+ * @return {number} Fixed ID of the new point.
+ */
+weapi.Polygon.prototype.buildRoute = function (lat, lng, opt_parent, opt_more) {
+  var vert = new weapi.Polygon.Node(lat, lng);
+  if (this.numVertices_ == 0) {
+    this.head_ = vert;
+    vert.next = vert;
+    vert.prev = vert;
+  } else {
+    var parent = this.vertices_[
+      goog.math.clamp(goog.isDefAndNotNull(opt_parent) ?
+        opt_parent : Number.MAX_VALUE,
+        0, this.vertices_.length - 1)];
+    if (!parent) {
+      parent = this.head_.prev;
+    }
+    vert.next = parent.next;
+    parent.next = vert;
+    vert.prev = parent;
+    vert.next.prev = vert;
+  }
+  this.vertices_.push(vert);
+  vert.fixedId = this.vertices_.length - 1;
+  this.numVertices_++;
+
+  if (opt_more !== true) {
+    this.rebufferPointsBuild_();
     // this.solveTriangles_();
   }
 
@@ -367,6 +406,50 @@ weapi.Polygon.prototype.intersects = function (other) {
  * @private
  */
 weapi.Polygon.prototype.rebufferPoints_ = function () {
+  var vertices = new Array();
+
+  if (!this.head_) return;
+  if (this.numVertices_ < 3) return;
+  // recalc temporary ids
+  /*var vrt = this.head_;
+  var nextId = 0;
+  do {
+    vrt.tmpId = nextId++;
+    vrt = vrt.next;
+  } while (vrt != this.head_);
+
+  goog.array.forEach(this.vertices_, function(el, i, arr) {
+    if (!el) return;
+    vertices[3 * el.tmpId + 0] = el.projX;
+    vertices[3 * el.tmpId + 1] = el.projY;
+    vertices[3 * el.tmpId + 2] = el.projZ;
+  });
+
+  var gl = this.gl;
+  gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer_);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);*/
+
+  var cartoArray = [];
+  var vrt = this.head_;
+  do {
+    cartoArray.push(new Cesium.Cartographic(vrt.x, vrt.y));
+    vrt = vrt.next;
+  } while (vrt != this.head_);
+
+  var carteArray =
+    Cesium.Ellipsoid.WGS84.cartographicArrayToCartesianArray(cartoArray);
+  this.primitive.positions = carteArray;
+  //this.primitive.update();
+  carteArray.push(carteArray[0]);
+
+  this.primitiveLine.positions = carteArray;
+};
+
+/**
+ * Buffers the points into GPU buffer.
+ * @private
+ */
+weapi.Polygon.prototype.rebufferPointsBuild_ = function () {
   var vertices = new Array();
 
   if (!this.head_) return;

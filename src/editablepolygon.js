@@ -20,7 +20,7 @@ goog.require('weapi.markers.PolyDragger');
  * @param {!weapi.markers.MarkerManager} markermanager MarkerManager to use.
  * @constructor
  */
-weapi.EditablePolygon = function(app, markermanager) {
+weapi.EditablePolygon = function (app, markermanager) {
   /**
    * @type {!weapi.App}
    * @protected
@@ -90,17 +90,17 @@ weapi.EditablePolygon = function(app, markermanager) {
 
 /**
  */
-weapi.EditablePolygon.prototype.destroy = function() {
+weapi.EditablePolygon.prototype.destroy = function () {
   this.disableClickToAdd();
   this.app.removePrimitive(this.polygon_.primitive);
   this.app.removePrimitive(this.polygon_.primitiveLineCol);
   this.app.sceneChanged = true;
   this.onchange_ = goog.nullFunction;
   this.icon_.destroy();
-  goog.object.forEach(this.midDraggers_, function(el, key, obj) {
+  goog.object.forEach(this.midDraggers_, function (el, key, obj) {
     this.markermanager_.removeMarker(el);
   }, this);
-  goog.object.forEach(this.draggers_, function(el, key, obj) {
+  goog.object.forEach(this.draggers_, function (el, key, obj) {
     this.markermanager_.removeMarker(el);
   }, this);
   delete this.midMap_;
@@ -110,53 +110,57 @@ weapi.EditablePolygon.prototype.destroy = function() {
 
 /**
  */
-weapi.EditablePolygon.prototype.enableClickToAdd = function() {
+weapi.EditablePolygon.prototype.enableClickToAdd = function () {
   if (goog.isDefAndNotNull(this.clickListenKey_)) return;
   // when mouse is down, wait for mouseup and check, if it wasn't a dragging..
   this.clickListenKey_ = goog.events.listen(this.app.canvas,
-      goog.events.EventType.MOUSEDOWN, function(e) {
-        goog.events.listenOnce(this.app.canvas,
-            goog.events.EventType.MOUSEUP, function(e_) {
-              if (e_.button == 0 && !goog.isNull(this.clickListenKey_)) {
-                if (Math.max(Math.abs(e.offsetX - e_.offsetX),
-                    Math.abs(e.offsetY - e_.offsetY)) <= 3) {
-                  var cartesian = this.app.camera.camera.pickEllipsoid(
-                      new Cesium.Cartesian2(e_.offsetX, e_.offsetY));
-                  if (goog.isDefAndNotNull(cartesian)) {
-                    var carto = Cesium.Ellipsoid.WGS84.
-                        cartesianToCartographic(cartesian);
-                    this.addPoint(goog.math.toDegrees(carto.latitude),
-                                  goog.math.toDegrees(carto.longitude));
-                    e_.preventDefault();
-                    this.lastClickToAdd_ = goog.now();
-                  }
-                }
+    goog.events.EventType.MOUSEDOWN,
+    function (e) {
+      goog.events.listenOnce(this.app.canvas,
+        goog.events.EventType.MOUSEUP,
+        function (e_) {
+          if (e_.button == 0 && !goog.isNull(this.clickListenKey_)) {
+            if (Math.max(Math.abs(e.offsetX - e_.offsetX),
+                Math.abs(e.offsetY - e_.offsetY)) <= 3) {
+              var cartesian = this.app.camera.camera.pickEllipsoid(
+                new Cesium.Cartesian2(e_.offsetX, e_.offsetY));
+              if (goog.isDefAndNotNull(cartesian)) {
+                var carto = Cesium.Ellipsoid.WGS84.
+                cartesianToCartographic(cartesian);
+                this.addPoint(goog.math.toDegrees(carto.latitude),
+                  goog.math.toDegrees(carto.longitude));
+                e_.preventDefault();
+                this.lastClickToAdd_ = goog.now();
               }
-            }, false, this);
-      }, false, this);
+            }
+          }
+        }, false, this);
+    }, false, this);
 };
 
 
 /**
  */
-weapi.EditablePolygon.prototype.disableClickToAdd = function() {
+weapi.EditablePolygon.prototype.disableClickToAdd = function () {
   goog.events.unlistenByKey(this.clickListenKey_);
   this.clickListenKey_ = null;
 };
+
+
 
 
 /**
  * @param {string} hexColor #rrggbb.
  * @param {number=} opt_a [0-1], defaults to 1.
  */
-weapi.EditablePolygon.prototype.setFillColor = function(hexColor, opt_a) {
+weapi.EditablePolygon.prototype.setFillColor = function (hexColor, opt_a) {
   hexColor = goog.color.normalizeHex(hexColor);
   var r = parseInt(hexColor.substr(1, 2), 16) / 255;
   var g = parseInt(hexColor.substr(3, 2), 16) / 255;
   var b = parseInt(hexColor.substr(5, 2), 16) / 255;
 
   this.polygon_.primitive.material.uniforms['color'] =
-      new Cesium.Color(r, g, b, opt_a);
+    new Cesium.Color(r, g, b, opt_a);
 
   this.app.sceneChanged = true;
 };
@@ -166,14 +170,14 @@ weapi.EditablePolygon.prototype.setFillColor = function(hexColor, opt_a) {
  * @param {string} hexColor #rrggbb.
  * @param {number=} opt_a [0-1], defaults to 1.
  */
-weapi.EditablePolygon.prototype.setStrokeColor = function(hexColor, opt_a) {
+weapi.EditablePolygon.prototype.setStrokeColor = function (hexColor, opt_a) {
   hexColor = goog.color.normalizeHex(hexColor);
   var r = parseInt(hexColor.substr(1, 2), 16) / 255;
   var g = parseInt(hexColor.substr(3, 2), 16) / 255;
   var b = parseInt(hexColor.substr(5, 2), 16) / 255;
 
   this.polygon_.primitiveLine.material.uniforms['color'] =
-      new Cesium.Color(r, g, b, opt_a);
+    new Cesium.Color(r, g, b, opt_a);
 
   this.app.sceneChanged = true;
 };
@@ -184,7 +188,7 @@ weapi.EditablePolygon.prototype.setStrokeColor = function(hexColor, opt_a) {
  * @param {number} width Desired width of the image in meters.
  * @param {number} height Desired height of the image in meters.
  */
-weapi.EditablePolygon.prototype.setIcon = function(src, width, height) {
+weapi.EditablePolygon.prototype.setIcon = function (src, width, height) {
   this.icon_.setImage(src, width, height);
   this.repositionIcon_();
   this.app.sceneChanged = true;
@@ -194,7 +198,7 @@ weapi.EditablePolygon.prototype.setIcon = function(src, width, height) {
 /**
  * @param {!function()} onchange Function to be called whenever polygon changes.
  */
-weapi.EditablePolygon.prototype.setOnChange = function(onchange) {
+weapi.EditablePolygon.prototype.setOnChange = function (onchange) {
   this.onchange_ = onchange;
 };
 
@@ -202,7 +206,7 @@ weapi.EditablePolygon.prototype.setOnChange = function(onchange) {
 /**
  * @return {boolean} Is the polygon valid (non self-intersecting,...) ?
  */
-weapi.EditablePolygon.prototype.isValid = function() {
+weapi.EditablePolygon.prototype.isValid = function () {
   return this.polygon_.isValid();
 };
 
@@ -210,7 +214,7 @@ weapi.EditablePolygon.prototype.isValid = function() {
 /**
  * @return {number} Rough area of the polygon in m^2.
  */
-weapi.EditablePolygon.prototype.getRoughArea = function() {
+weapi.EditablePolygon.prototype.getRoughArea = function () {
   return this.polygon_.getRoughArea();
 };
 
@@ -220,9 +224,12 @@ weapi.EditablePolygon.prototype.getRoughArea = function() {
  * @return {{lat: number, lng: number}|null}
  *                                 Centroid of the polygon or null if not valid.
  */
-weapi.EditablePolygon.prototype.getCentroid = function() {
+weapi.EditablePolygon.prototype.getCentroid = function () {
   var centroid = this.polygon_.calcCentroid();
-  return {'lat': centroid[1], 'lng': centroid[0]};
+  return {
+    'lat': centroid[1],
+    'lng': centroid[0]
+  };
 };
 
 
@@ -232,7 +239,7 @@ weapi.EditablePolygon.prototype.getCentroid = function() {
  * @param {number} lng .
  * @return {boolean} True if inside the polygon.
  */
-weapi.EditablePolygon.prototype.isPointIn = function(lat, lng) {
+weapi.EditablePolygon.prototype.isPointIn = function (lat, lng) {
   //workaround: the mousedown/up events cause point adding,
   // but the click event can not be easily canceled so
   // it always causes polygon selection when click-to-adding
@@ -245,7 +252,7 @@ weapi.EditablePolygon.prototype.isPointIn = function(lat, lng) {
  * @param {!weapi.EditablePolygon} other .
  * @return {boolean} True if the two polygons overlap.
  */
-weapi.EditablePolygon.prototype.intersects = function(other) {
+weapi.EditablePolygon.prototype.intersects = function (other) {
   return this.polygon_.intersects(other.polygon_);
 };
 
@@ -253,11 +260,11 @@ weapi.EditablePolygon.prototype.intersects = function(other) {
 /**
  * @private
  */
-weapi.EditablePolygon.prototype.repositionIcon_ = function() {
+weapi.EditablePolygon.prototype.repositionIcon_ = function () {
   var avg = this.polygon_.calcCentroid() || this.polygon_.calcAverage();
 
   this.icon_.setLatLng(goog.math.toRadians(avg[1]),
-                       goog.math.toRadians(avg[0]));
+    goog.math.toRadians(avg[0]));
   this.icon_.enable(this.polygon_.isValid());
 };
 
@@ -266,12 +273,12 @@ weapi.EditablePolygon.prototype.repositionIcon_ = function() {
  * @param {boolean} visible .
  * @param {boolean=} opt_midOnly .
  */
-weapi.EditablePolygon.prototype.showDraggers = function(visible, opt_midOnly) {
-  goog.object.forEach(this.midMap_, function(el, key, obj) {
+weapi.EditablePolygon.prototype.showDraggers = function (visible, opt_midOnly) {
+  goog.object.forEach(this.midMap_, function (el, key, obj) {
     el.enable(visible);
   }, this);
   if (opt_midOnly !== true) {
-    goog.object.forEach(this.draggers_, function(el, key, obj) {
+    goog.object.forEach(this.draggers_, function (el, key, obj) {
       this.markermanager_.getMarker(el).enable(visible);
     }, this);
   }
@@ -282,7 +289,7 @@ weapi.EditablePolygon.prototype.showDraggers = function(visible, opt_midOnly) {
 /**
  * @return {!Array.<!{lat: number, lng: number}>} .
  */
-weapi.EditablePolygon.prototype.getPoints = function() {
+weapi.EditablePolygon.prototype.getPoints = function () {
   return this.polygon_.getAllCoords();
 };
 
@@ -292,20 +299,20 @@ weapi.EditablePolygon.prototype.getPoints = function() {
  * @param {number} fixedId .
  * @private
  */
-weapi.EditablePolygon.prototype.repositionMidsAround_ = function(fixedId) {
+weapi.EditablePolygon.prototype.repositionMidsAround_ = function (fixedId) {
   var neighs = this.polygon_.getNeighbors(fixedId);
   if (neighs.length > 0) {
     var coordsPrev = this.polygon_.getCoords(neighs[0]);
     var coordsHere = this.polygon_.getCoords(fixedId);
     var coordsNext = this.polygon_.getCoords(neighs[1]);
     this.midMap_[fixedId].lat =
-        goog.math.toRadians((coordsHere[1] + coordsNext[1]) / 2);
+      goog.math.toRadians((coordsHere[1] + coordsNext[1]) / 2);
     this.midMap_[fixedId].lon =
-        goog.math.toRadians((coordsHere[0] + coordsNext[0]) / 2);
+      goog.math.toRadians((coordsHere[0] + coordsNext[0]) / 2);
     this.midMap_[neighs[0]].lat =
-        goog.math.toRadians((coordsPrev[1] + coordsHere[1]) / 2);
+      goog.math.toRadians((coordsPrev[1] + coordsHere[1]) / 2);
     this.midMap_[neighs[0]].lon =
-        goog.math.toRadians((coordsPrev[0] + coordsHere[0]) / 2);
+      goog.math.toRadians((coordsPrev[0] + coordsHere[0]) / 2);
   }
   this.app.sceneChanged = true;
 };
@@ -316,9 +323,9 @@ weapi.EditablePolygon.prototype.repositionMidsAround_ = function(fixedId) {
  * and performs necessary adjustments.
  * @private
  */
-weapi.EditablePolygon.prototype.checkPointOrientationChange_ = function() {
+weapi.EditablePolygon.prototype.checkPointOrientationChange_ = function () {
   if (this.polygon_.orientationChanged()) {
-    goog.object.forEach(this.midMap_, function(el, key, obj) {
+    goog.object.forEach(this.midMap_, function (el, key, obj) {
       this.repositionMidsAround_(key);
     }, this);
   }
@@ -328,7 +335,7 @@ weapi.EditablePolygon.prototype.checkPointOrientationChange_ = function() {
 /**
  * @param {!Array.<number>} coords
  */
-weapi.EditablePolygon.prototype.addPoints = function(coords) {
+weapi.EditablePolygon.prototype.addPoints = function (coords) {
   var l = coords.length;
   for (var i = 0; i < l - 1; i++) {
     this.addPoint(coords[i][0], coords[i][1], undefined, undefined, true);
@@ -345,9 +352,9 @@ weapi.EditablePolygon.prototype.addPoints = function(coords) {
  * @param {boolean=} opt_more More points coming?
  * @return {number} fixedId.
  */
-weapi.EditablePolygon.prototype.addPoint = function(lat, lng,
-                                                    opt_parent, opt_fromMid,
-                                                    opt_more) {
+weapi.EditablePolygon.prototype.addPoint = function (lat, lng,
+  opt_parent, opt_fromMid,
+  opt_more) {
   var fixedId = this.polygon_.addPoint(lat, lng, opt_parent, opt_more);
 
   if (opt_fromMid && goog.isDefAndNotNull(opt_parent)) {
@@ -355,33 +362,95 @@ weapi.EditablePolygon.prototype.addPoint = function(lat, lng,
     delete this.midDraggers_[opt_parent];
   } else {
     var dragger = new weapi.markers.PolyDragger(
-        goog.math.toRadians(lat), goog.math.toRadians(lng), this.app, fixedId,
-        goog.bind(this.movePoint, this), goog.bind(this.removePoint, this));
+      goog.math.toRadians(lat), goog.math.toRadians(lng), this.app, fixedId,
+      goog.bind(this.movePoint, this), goog.bind(this.removePoint, this));
     this.draggers_[fixedId] = this.markermanager_.addMarker(null, dragger);
   }
   this.repositionIcon_();
 
   var neighs = this.polygon_.getNeighbors(fixedId);
   if (neighs.length > 0) {
-    var adderAfter = goog.bind(function(parentP) {
-      return goog.bind(function(lat, lng) {
+    var adderAfter = goog.bind(function (parentP) {
+      return goog.bind(function (lat, lng) {
         return this.addPoint(lat, lng, parentP, true);
       }, this);
     }, this);
     var mid1 = new weapi.markers.PolyDragger(
-        goog.math.toRadians(lat), goog.math.toRadians(lng), this.app, null,
-        goog.bind(this.movePoint, this),
-        goog.bind(this.removePoint, this),
-        adderAfter(fixedId));
+      goog.math.toRadians(lat), goog.math.toRadians(lng), this.app, null,
+      goog.bind(this.movePoint, this),
+      goog.bind(this.removePoint, this),
+      adderAfter(fixedId));
     this.midMap_[fixedId] = mid1;
     this.midDraggers_[fixedId] = this.markermanager_.addMarker(null, mid1);
 
     if (opt_fromMid) {
       var mid2 = new weapi.markers.PolyDragger(
-          goog.math.toRadians(lat), goog.math.toRadians(lng), this.app, null,
-          goog.bind(this.movePoint, this),
-          goog.bind(this.removePoint, this),
-          adderAfter(neighs[0]));
+        goog.math.toRadians(lat), goog.math.toRadians(lng), this.app, null,
+        goog.bind(this.movePoint, this),
+        goog.bind(this.removePoint, this),
+        adderAfter(neighs[0]));
+      this.midMap_[neighs[0]] = mid2;
+      this.midDraggers_[neighs[0]] = this.markermanager_.addMarker(null, mid2);
+    }
+    this.repositionMidsAround_(neighs[0]);
+    this.repositionMidsAround_(fixedId);
+    this.repositionMidsAround_(neighs[1]);
+  }
+
+  this.checkPointOrientationChange_();
+  this.onchange_();
+
+  this.app.sceneChanged = true;
+
+  return fixedId;
+};
+
+
+//Dadadaadadadadadadaa
+/**
+ * @param {number} lat in degrees.
+ * @param {number} lng in degrees.
+ * @param {number=} opt_parent .
+ * @param {boolean=} opt_fromMid .
+ * @param {boolean=} opt_more More points coming?
+ * @return {number} fixedId.
+ */
+weapi.EditablePolygon.prototype.buildRoute = function (lat, lng,
+  opt_parent, opt_fromMid,
+  opt_more) {
+  var fixedId = this.polygon_.buildRoute(lat, lng, opt_parent, opt_more);
+  if (opt_fromMid && goog.isDefAndNotNull(opt_parent)) {
+    this.draggers_[fixedId] = this.midDraggers_[opt_parent];
+    delete this.midDraggers_[opt_parent];
+  } else {
+    var dragger = new weapi.markers.PolyDragger(
+      goog.math.toRadians(lat), goog.math.toRadians(lng), this.app, fixedId,
+      goog.bind(this.movePoint, this), goog.bind(this.removePoint, this));
+    this.draggers_[fixedId] = this.markermanager_.addMarker(null, dragger);
+  }
+  this.repositionIcon_();
+
+  var neighs = this.polygon_.getNeighbors(fixedId);
+  if (neighs.length > 0) {
+    var adderAfter = goog.bind(function (parentP) {
+      return goog.bind(function (lat, lng) {
+        return this.addPoint(lat, lng, parentP, true);
+      }, this);
+    }, this);
+    var mid1 = new weapi.markers.PolyDragger(
+      goog.math.toRadians(lat), goog.math.toRadians(lng), this.app, null,
+      goog.bind(this.movePoint, this),
+      goog.bind(this.removePoint, this),
+      adderAfter(fixedId));
+    this.midMap_[fixedId] = mid1;
+    this.midDraggers_[fixedId] = this.markermanager_.addMarker(null, mid1);
+
+    if (opt_fromMid) {
+      var mid2 = new weapi.markers.PolyDragger(
+        goog.math.toRadians(lat), goog.math.toRadians(lng), this.app, null,
+        goog.bind(this.movePoint, this),
+        goog.bind(this.removePoint, this),
+        adderAfter(neighs[0]));
       this.midMap_[neighs[0]] = mid2;
       this.midDraggers_[neighs[0]] = this.markermanager_.addMarker(null, mid2);
     }
@@ -404,7 +473,7 @@ weapi.EditablePolygon.prototype.addPoint = function(lat, lng,
  * @param {number} lat in degrees.
  * @param {number} lng in degrees.
  */
-weapi.EditablePolygon.prototype.movePoint = function(fixedId, lat, lng) {
+weapi.EditablePolygon.prototype.movePoint = function (fixedId, lat, lng) {
   this.polygon_.movePoint(fixedId, lat, lng);
   var marker = this.markermanager_.getMarker(this.draggers_[fixedId]);
   marker.lat = goog.math.toRadians(lat);
@@ -422,7 +491,7 @@ weapi.EditablePolygon.prototype.movePoint = function(fixedId, lat, lng) {
 /**
  * @param {number} fixedId .
  */
-weapi.EditablePolygon.prototype.removePoint = function(fixedId) {
+weapi.EditablePolygon.prototype.removePoint = function (fixedId) {
   var neighs = this.polygon_.getNeighbors(fixedId);
 
   this.polygon_.removePoint(fixedId);
