@@ -16,7 +16,8 @@
       var options = {
         altitude: 360,
         position: [47.192, 8.523],
-        proxyHost: 'http://srtm.webglearth.com/cgi-bin/corsproxy.fcgi?url='
+        proxyHost: 'http://srtm.webglearth.com/cgi-bin/corsproxy.fcgi?url=',
+        sky:'Skybox'
       };
 
       app = new WebGLEarth('webglearthdiv', options);
@@ -26,6 +27,8 @@
 
       var defaultPoly = new WebGLEarth.Polygon(app);
       defaultPoly.setFillColor('#00ffff', 0.3);
+
+
       defaultPoly.addPoint(47.1966945, 8.52359601);
       defaultPoly.addPoint(47.1963864, 8.52475703);
       var cornerPoint =

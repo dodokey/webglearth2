@@ -30,7 +30,7 @@ goog.require('weapi.utils');
 weapi.markers.PrettyMarker = function (lat, lon,
   opt_iconUrl, opt_width, opt_height, txt) {
 
-  if (txt !== '') {
+  if (txt !== undefined) {
     var marker = goog.dom.createDom('div', {
       "class": "we-pm-icon locationtag countrytag"
     });

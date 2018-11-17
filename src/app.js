@@ -145,6 +145,8 @@ weapi.App = function (divid, opt_options) {
     var baseUrl = goog.isString(options['sky']) ?
       options['sky'] : window['CESIUM_BASE_URL'];
     var skyBoxBaseUrl = (goog.DEBUG ? '../deploy/' : baseUrl) + 'SkyBox/';
+
+
     this.scene.skyBox = new Cesium.SkyBox({
       'sources': {
         'positiveX': skyBoxBaseUrl + 'px.jpg',
