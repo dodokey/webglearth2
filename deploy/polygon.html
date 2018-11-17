@@ -71,8 +71,9 @@
       7.5416193], [77.177189, 8.1728407], [76.385092, 8.729345], [75.941902, 9.963503], [75.762675, 11.246887]]
       var defaultPoly2 = new WebGLEarth.Polygon(app);
       defaultPoly2.setFillColor('#000000', 0.0);
-      route.forEach(coor => defaultPoly2.addPoint(coor[1],coor[0]))
+      route.forEach(coor => defaultPoly2.buildRoute(coor[1],coor[0]))
       defaultPoly2.disableClickToAdd();
+      // defaultPoly2.buildRoute(123);
       defaultPoly2.showDraggers(false);
       defaultPoly2.onClick(reopenPoly);
 
