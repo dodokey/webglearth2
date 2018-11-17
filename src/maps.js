@@ -40,7 +40,7 @@ weapi.maps.mapMap = new goog.structs.Map();
  * @param {!Object.<string, Object>|!Array.<Object>=} opt_opts Map options.
  * @return {weapi.Map} Initialized TileProvider.
  */
-weapi.maps.initMap = function(app, type, opt_opts) {
+weapi.maps.initMap = function (app, type, opt_opts) {
 
   /** @type {string} */
   var key = type;
@@ -107,12 +107,12 @@ weapi.maps.initMap = function(app, type, opt_opts) {
         }
         if (aropts[7] && aropts[7].length > 0) {
           var q = new goog.Uri.QueryData(aropts[7]);
-          goog.array.forEach(q.getKeys(), function(el, i, arr) {
+          goog.array.forEach(q.getKeys(), function (el, i, arr) {
             mapopts['parameters'][el] = q.get(el);
           });
         }
         if (aropts[4] == 'EPSG:900913' ||
-            aropts[4] == 'EPSG:3857') {
+          aropts[4] == 'EPSG:3857') {
           mapopts['tilingScheme'] = new Cesium.WebMercatorTilingScheme();
         }
         // ignore minzoom aropts[8];
@@ -130,6 +130,7 @@ weapi.maps.initMap = function(app, type, opt_opts) {
         mapopts['flipY'] = aropts[5];
         mapopts['subdomains'] = aropts[6];
         mapopts['copyright'] = aropts[7];
+        console.log(mapopts);
         if (app) mapopts['proxy'] = app.mapProxyObject;
       }
       tileProvider = new weapi.CustomMap(mapopts);
@@ -141,7 +142,8 @@ weapi.maps.initMap = function(app, type, opt_opts) {
   }
 
   var map = new weapi.Map(new Cesium.ImageryLayer(
-      /** @type {!Cesium.ImageryProvider} */(tileProvider)));
+    /** @type {!Cesium.ImageryProvider} */
+    (tileProvider)));
 
   if (mapopts && mapopts['opacity']) {
     map.setOpacity(parseFloat(mapopts['opacity']));
@@ -162,7 +164,7 @@ weapi.maps.initMap = function(app, type, opt_opts) {
  * @param {string=} opt_subtype Optional subtype of the map.
  * @return {weapi.Map} TileProvider.
  */
-weapi.maps.getMap = function(type, opt_subtype) {
+weapi.maps.getMap = function (type, opt_subtype) {
   /** @type {string} */
   var key = type;
   if (goog.isDefAndNotNull(opt_subtype))
@@ -176,6 +178,6 @@ weapi.maps.getMap = function(type, opt_subtype) {
  * @param {!weapi.App} app .
  * Initializes maps that does not require any special parameters (keys etc.).
  */
-weapi.maps.initStatics = function(app) {
+weapi.maps.initStatics = function (app) {
   weapi.maps.initMap(app, weapi.maps.MapType.OSM);
 };

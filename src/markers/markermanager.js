@@ -20,7 +20,7 @@ goog.require('weapi.utils');
  *                           created and positioned.
  * @constructor
  */
-weapi.markers.MarkerManager = function(app, element) {
+weapi.markers.MarkerManager = function (app, element) {
   /**
    * @type {!weapi.App}
    * @private
@@ -47,7 +47,7 @@ weapi.markers.MarkerManager = function(app, element) {
  * @param {!weapi.markers.AbstractMarker} marker Marker to be added.
  * @return {string} Key that was actually used.
  */
-weapi.markers.MarkerManager.prototype.addMarker = function(key, marker) {
+weapi.markers.MarkerManager.prototype.addMarker = function (key, marker) {
   var realKey = key || goog.string.getRandomString();
   marker.attach(this.element_);
   this.markerMap_.set(realKey, marker);
@@ -61,7 +61,7 @@ weapi.markers.MarkerManager.prototype.addMarker = function(key, marker) {
  * @return {weapi.markers.AbstractMarker} Marker or undefined if key is
  *                                        not present in the collection.
  */
-weapi.markers.MarkerManager.prototype.getMarker = function(key) {
+weapi.markers.MarkerManager.prototype.getMarker = function (key) {
   return /** @type {weapi.markers.AbstractMarker}*/ (this.markerMap_.get(key));
 };
 
@@ -72,9 +72,9 @@ weapi.markers.MarkerManager.prototype.getMarker = function(key) {
  * @return {weapi.markers.AbstractMarker} Marker that was removed or undefined
  *                                        if key was not present.
  */
-weapi.markers.MarkerManager.prototype.removeMarker = function(key) {
+weapi.markers.MarkerManager.prototype.removeMarker = function (key) {
   var marker = /** @type {weapi.markers.AbstractMarker}*/
-      (this.markerMap_.get(key));
+    (this.markerMap_.get(key));
   if (goog.isDef(marker)) {
     marker.detach();
     this.markerMap_.remove(key);
@@ -87,8 +87,8 @@ weapi.markers.MarkerManager.prototype.removeMarker = function(key) {
  * Removes marker, does NOT dispose of it.
  * @param {weapi.markers.AbstractMarker} marker .
  */
-weapi.markers.MarkerManager.prototype.removeMarkerEx = function(marker) {
-  goog.structs.forEach(this.markerMap_, function(val, key, col) {
+weapi.markers.MarkerManager.prototype.removeMarkerEx = function (marker) {
+  goog.structs.forEach(this.markerMap_, function (val, key, col) {
     if (val == marker) this.removeMarker(key);
   }, this);
 };
@@ -97,7 +97,7 @@ weapi.markers.MarkerManager.prototype.removeMarkerEx = function(marker) {
 /**
  * Updates all markers it controls.
  */
-weapi.markers.MarkerManager.prototype.updateMarkers = function() {
+weapi.markers.MarkerManager.prototype.updateMarkers = function () {
   goog.array.forEach(this.markerMap_.getKeys(), this.updateMarker, this);
 };
 
@@ -106,14 +106,14 @@ weapi.markers.MarkerManager.prototype.updateMarkers = function() {
  * Updates all markers it controls.
  * @param {string} key Key of marker to update.
  */
-weapi.markers.MarkerManager.prototype.updateMarker = function(key) {
+weapi.markers.MarkerManager.prototype.updateMarker = function (key) {
   var marker = /** @type {weapi.markers.AbstractMarker}*/
-      (this.markerMap_.get(key));
+    (this.markerMap_.get(key));
 
   if (marker.isEnabled()) {
     //window['console']['log'](marker.lat, marker.lon);
     var pos = weapi.utils.getXYForLatLng(this.app_,
-                                         marker.lat, marker.lon);
+      marker.lat, marker.lon);
     //window['console']['log'](pos);
     //window.title = pos;
     if (goog.isDefAndNotNull(pos)) {
@@ -129,10 +129,10 @@ weapi.markers.MarkerManager.prototype.updateMarker = function(key) {
 /**
  * @param {function(!weapi.markers.AbstractMarker)} func Callback.
  */
-weapi.markers.MarkerManager.prototype.forEach = function(func) {
-  goog.array.forEach(this.markerMap_.getKeys(), function(el, i, arr) {
+weapi.markers.MarkerManager.prototype.forEach = function (func) {
+  goog.array.forEach(this.markerMap_.getKeys(), function (el, i, arr) {
     var marker = /** @type {weapi.markers.AbstractMarker}*/
-        (this.markerMap_.get(el));
+      (this.markerMap_.get(el));
     if (marker) func(marker);
   }, this);
 };

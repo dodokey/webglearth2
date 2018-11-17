@@ -35,7 +35,7 @@ weapi.UA = 'UA-20846306-1';
  * @param {Object=} opt_options Application options.
  * @constructor
  */
-weapi.App = function(divid, opt_options) {
+weapi.App = function (divid, opt_options) {
   var options = opt_options || {};
   var container = goog.dom.getElement(divid);
 
@@ -46,21 +46,26 @@ weapi.App = function(divid, opt_options) {
 
   if (weapi.UA && weapi.UA.length > 0) {
     var trackerVar = '__WE_ga'; //global variable
-    (function(i, s, o, g, r) {
+    (function (i, s, o, g, r) {
       i['GoogleAnalyticsObject'] = r;
-      i[r] = i[r] || function() {(i[r]['q'] = i[r]['q'] || []).push(arguments)};
+      i[r] = i[r] || function () {
+        (i[r]['q'] = i[r]['q'] || []).push(arguments)
+      };
       i[r]['l'] = 1 * new Date();
-      var a = s.createElement(o), m = s.getElementsByTagName(o)[0];
+      var a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0];
       a.async = 1;
       a.src = g;
       m.parentNode.insertBefore(a, m);
     })(window, document, 'script',
-       this.resourceProtocol + '//www.google-analytics.com/analytics.js',
-       trackerVar);
-    window[trackerVar]('create', weapi.UA, {'name': 'we0'});
+      this.resourceProtocol + '//www.google-analytics.com/analytics.js',
+      trackerVar);
+    window[trackerVar]('create', weapi.UA, {
+      'name': 'we0'
+    });
     window[trackerVar]('we0.send', 'event', weapi.VERSION.toString(),
-                       window.location.host, window.location.href,
-                       webGLSupported ? 1 : 0);
+      window.location.host, window.location.href,
+      webGLSupported ? 1 : 0);
   }
 
   if (!webGLSupported) {
@@ -75,7 +80,7 @@ weapi.App = function(divid, opt_options) {
   }
 
   weapi.utils.installStyles('.cesium-credit-textContainer:before{content:' +
-                            '\'WebGL Earth \\2022\\20 Cesium \\2022\\20\';}');
+    '\'WebGL Earth \\2022\\20 Cesium \\2022\\20\';}');
 
   this.CORSErrorReported = false;
   weapi.maps.initStatics(this);
@@ -83,10 +88,12 @@ weapi.App = function(divid, opt_options) {
   container.style.position = 'relative';
   container.style.overflow = 'hidden';
   this.canvas = /** @type {!HTMLCanvasElement} */
-      (goog.dom.createElement('canvas'));
+    (goog.dom.createElement('canvas'));
   this.canvas.style.width = '100%';
   this.canvas.style.height = '100%';
-  this.canvas.oncontextmenu = function() {return false;};
+  this.canvas.oncontextmenu = function () {
+    return false;
+  };
   container.appendChild(this.canvas);
 
   /** @type {?Function} */
@@ -94,7 +101,11 @@ weapi.App = function(divid, opt_options) {
 
   this.scene = new Cesium.Scene({
     'canvas': this.canvas,
-    'contextOptions': {'webgl': {'alpha': options['sky'] !== true}}
+    'contextOptions': {
+      'webgl': {
+        'alpha': options['sky'] !== true
+      }
+    }
   });
 
   /** @type {?weapi.MiniGlobe} */
@@ -121,9 +132,9 @@ weapi.App = function(divid, opt_options) {
 
   /* type {{getURL: function(string) : string}} */
   this.mapProxyObject = {
-    'getURL': function(url) {
+    'getURL': function (url) {
       return goog.isDefAndNotNull(proxyHost) ?
-             proxyHost + encodeURIComponent(url) : url;
+        proxyHost + encodeURIComponent(url) : url;
     }
   };
 
@@ -132,16 +143,16 @@ weapi.App = function(divid, opt_options) {
   }
   if (options['sky']) {
     var baseUrl = goog.isString(options['sky']) ?
-                  options['sky'] : window['CESIUM_BASE_URL'];
+      options['sky'] : window['CESIUM_BASE_URL'];
     var skyBoxBaseUrl = (goog.DEBUG ? '../deploy/' : baseUrl) + 'SkyBox/';
     this.scene.skyBox = new Cesium.SkyBox({
       'sources': {
-        'positiveX' : skyBoxBaseUrl + 'px.jpg',
-        'negativeX' : skyBoxBaseUrl + 'mx.jpg',
-        'positiveY' : skyBoxBaseUrl + 'py.jpg',
-        'negativeY' : skyBoxBaseUrl + 'my.jpg',
-        'positiveZ' : skyBoxBaseUrl + 'pz.jpg',
-        'negativeZ' : skyBoxBaseUrl + 'mz.jpg'
+        'positiveX': skyBoxBaseUrl + 'px.jpg',
+        'negativeX': skyBoxBaseUrl + 'mx.jpg',
+        'positiveY': skyBoxBaseUrl + 'py.jpg',
+        'negativeY': skyBoxBaseUrl + 'my.jpg',
+        'positiveZ': skyBoxBaseUrl + 'pz.jpg',
+        'negativeZ': skyBoxBaseUrl + 'mz.jpg'
       }
     });
   } else {
@@ -197,7 +208,7 @@ weapi.App = function(divid, opt_options) {
   this.polyIconCollection = new Cesium.BillboardCollection();
   primitives.add(this.polyIconCollection);
 
-  var tick = goog.bind(function() {
+  var tick = goog.bind(function () {
     if (!this.forcedPause) {
       this.scene.initializeFrame(); // to update camera from animators and sscc
 
@@ -234,7 +245,9 @@ weapi.App = function(divid, opt_options) {
 
   var handler = new Cesium.ScreenSpaceEventHandler(this.canvas);
 
-  var stopAnim = goog.bind(function() {this.camera.animator.cancel();}, this);
+  var stopAnim = goog.bind(function () {
+    this.camera.animator.cancel();
+  }, this);
 
   handler.setInputAction(stopAnim, Cesium.ScreenSpaceEventType.LEFT_DOWN);
   handler.setInputAction(stopAnim, Cesium.ScreenSpaceEventType.RIGHT_DOWN);
@@ -250,12 +263,12 @@ weapi.App = function(divid, opt_options) {
   var center = options['center'];
   if (goog.isDefAndNotNull(pos) && pos.length > 1) {
     this.camera.setPos(goog.math.toRadians(pos[0]),
-                       goog.math.toRadians(pos[1]),
-                       undefined);
+      goog.math.toRadians(pos[1]),
+      undefined);
   } else if (goog.isDefAndNotNull(center) && center.length > 1) {
     this.camera.setPos(goog.math.toRadians(center[0]),
-                       goog.math.toRadians(center[1]),
-                       undefined);
+      goog.math.toRadians(center[1]),
+      undefined);
   }
 
   // TODO: zoom support
@@ -297,7 +310,7 @@ weapi.App = function(divid, opt_options) {
   // It is however very unefficient to preform color picking on WebGLTexture.
   // Therefore, clone the image reference prior to creating the texture.
   var orig = Cesium['ImageryLayer'].prototype['_createTexture'];
-  Cesium['ImageryLayer'].prototype['_createTexture'] = function(ctx, imgry) {
+  Cesium['ImageryLayer'].prototype['_createTexture'] = function (ctx, imgry) {
     imgry['__image__'] = imgry['image'];
     orig.call(this, ctx, imgry);
   };
@@ -306,13 +319,14 @@ weapi.App = function(divid, opt_options) {
   var that = this;
   var orig2 = Cesium['GlobeSurfaceTile']['processStateMachine'];
   Cesium['GlobeSurfaceTile']['processStateMachine'] =
-      function(t, c, cl, tp, ic) {
-    /*if (this['isRenderable']) */that.sceneChanged = true;
+    function (t, c, cl, tp, ic) {
+      /*if (this['isRenderable']) */
+      that.sceneChanged = true;
 
-    orig2(t, c, cl, tp, ic);
-  };
+      orig2(t, c, cl, tp, ic);
+    };
 
-  setTimeout(function() {
+  setTimeout(function () {
     that.sceneChanged = true;
   }, 1);
 };
@@ -329,14 +343,14 @@ weapi.App.PRIMITIVE_GROUPING_SIZE = 10;
  * @param {Object=} opt_contextOpts
  * @return {?WebGLRenderingContext}
  */
-weapi.App.detectWebGLSupport = function(opt_canvas, opt_contextOpts) {
+weapi.App.detectWebGLSupport = function (opt_canvas, opt_contextOpts) {
   if (!!window['WebGLRenderingContext']) {
     var canvas = opt_canvas || goog.dom.createElement('canvas'),
-        names = ['webgl', 'experimental-webgl']; //'moz-webgl', 'webkit-3d'
+      names = ['webgl', 'experimental-webgl']; //'moz-webgl', 'webkit-3d'
     for (var i = 0; i < names.length; i++) {
       try {
         var ctx = /** @type {?WebGLRenderingContext} */
-            (canvas.getContext(names[i], opt_contextOpts));
+          (canvas.getContext(names[i], opt_contextOpts));
         if (ctx && goog.isFunction(ctx['getParameter'])) return ctx;
       } catch (e) {}
     }
@@ -349,21 +363,21 @@ weapi.App.detectWebGLSupport = function(opt_canvas, opt_contextOpts) {
 /**
  * @param {Object} eventObj
  */
-weapi.App.prototype.listenCORSErrors = function(eventObj) {
+weapi.App.prototype.listenCORSErrors = function (eventObj) {
   if (!this.CORSErrorReported) {
-    eventObj['addEventListener'](function(e) {
+    eventObj['addEventListener'](function (e) {
       if (!this.CORSErrorReported) {
         //window['console']['log'](e);
         //if (e['timesRetried'] > 1) { // not an isolated network error
         if (this.isFileProtocol &&
-            e['provider']['_url'].indexOf('http') !== 0) {
+          e['provider']['_url'].indexOf('http') !== 0) {
           alert('Tiles for WebGL must be accessed over http protocol.');
         } else {
           var msg = 'An error occured while accessing the tiles. Cross-domain' +
-              ' access restrictions are applied on map tiles for WebGL. ' +
-              'Either use CORS on remote domain (http://enable-cors.org/) or ' +
-              'place your application on the same domain as tiles (hosting ' +
-              'app and tiles on the same domain or running a tile proxy).';
+            ' access restrictions are applied on map tiles for WebGL. ' +
+            'Either use CORS on remote domain (http://enable-cors.org/) or ' +
+            'place your application on the same domain as tiles (hosting ' +
+            'app and tiles on the same domain or running a tile proxy).';
           if (window['console'] && window['console']['error']) {
             window['console']['error'](msg);
           }
@@ -380,8 +394,8 @@ weapi.App.prototype.listenCORSErrors = function(eventObj) {
  * @param {!Cesium.BillboardCollection|!Cesium.PrimitiveCollection|
  *         !Cesium.Polygon|!Cesium.PolylineCollection} object .
  */
-weapi.App.prototype.addPrimitive = function(object) {
-  var composite = goog.array.findRight(this.composites, function(el, i, arr) {
+weapi.App.prototype.addPrimitive = function (object) {
+  var composite = goog.array.findRight(this.composites, function (el, i, arr) {
     return el.length < weapi.App.PRIMITIVE_GROUPING_SIZE;
   });
 
@@ -401,8 +415,8 @@ weapi.App.prototype.addPrimitive = function(object) {
  * @param {!Cesium.BillboardCollection|!Cesium.PrimitiveCollection|
  *         !Cesium.Polygon|!Cesium.PolylineCollection} object .
  */
-weapi.App.prototype.removePrimitive = function(object) {
-  goog.array.forEach(this.composites, function(el, i, arr) {
+weapi.App.prototype.removePrimitive = function (object) {
+  goog.array.forEach(this.composites, function (el, i, arr) {
     el['remove'](object);
   });
 };
@@ -411,7 +425,7 @@ weapi.App.prototype.removePrimitive = function(object) {
 /**
  *
  */
-weapi.App.prototype.handleResize = function() {
+weapi.App.prototype.handleResize = function () {
   var width = this.canvas.clientWidth;
   var height = this.canvas.clientHeight;
 
@@ -430,7 +444,7 @@ weapi.App.prototype.handleResize = function() {
 /**
  * @param {!weapi.Map} map Map.
  */
-weapi.App.prototype.setBaseMap = function(map) {
+weapi.App.prototype.setBaseMap = function (map) {
   var layers = this.scene.imageryLayers;
   //this.scene.imageryLayers.get(0) = map.layer;
   layers.remove(layers.get(0), false);
@@ -444,7 +458,7 @@ weapi.App.prototype.setBaseMap = function(map) {
 /**
  * @param {weapi.Map} map Map.
  */
-weapi.App.prototype.setOverlayMap = function(map) {
+weapi.App.prototype.setOverlayMap = function (map) {
   var length = this.scene.imageryLayers.length;
   var layers = this.scene.imageryLayers;
   if (length > 1) {
@@ -465,7 +479,7 @@ weapi.App.prototype.setOverlayMap = function(map) {
  * @param {function(Event)} listener Function to call back.
  * @return {goog.events.ListenableKey|null|number} listenKey.
  */
-weapi.App.prototype.on = function(type, listener) {
+weapi.App.prototype.on = function (type, listener) {
   /**
    * Wraps the listener function with a wrapper function
    * that adds some extended event info.
@@ -474,17 +488,19 @@ weapi.App.prototype.on = function(type, listener) {
    * @return {function(Event)} Wrapper listener.
    * @private
    */
-  var wrap = function(app, listener) {
-    return function(e) {
+  var wrap = function (app, listener) {
+    return function (e) {
       e.target = app;
       e['latitude'] = null;
       e['longitude'] = null;
 
-      var offsetX = e.offsetX, offsetY = e.offsetY;
+      var offsetX = e.offsetX,
+        offsetY = e.offsetY;
       if (!goog.isDefAndNotNull(offsetX) || !goog.isDefAndNotNull(offsetY)) {
         var origE = e.getBrowserEvent();
-        var pageX = origE.pageX, pageY = origE.pageY,
-            touches = origE['touches'];
+        var pageX = origE.pageX,
+          pageY = origE.pageY,
+          touches = origE['touches'];
         if (touches && touches[0] && (!pageX || !pageY)) {
           pageX = touches[0].pageX;
           pageY = touches[0].pageY;
@@ -495,13 +511,16 @@ weapi.App.prototype.on = function(type, listener) {
       }
       if (goog.isDefAndNotNull(offsetX) && goog.isDefAndNotNull(offsetY)) {
         var cartesian = app.camera.camera.
-            pickEllipsoid(new Cesium.Cartesian2(offsetX, offsetY));
+        pickEllipsoid(new Cesium.Cartesian2(offsetX, offsetY));
         if (goog.isDefAndNotNull(cartesian)) {
           var carto = Cesium.Ellipsoid.WGS84.cartesianToCartographic(cartesian);
 
           var lat = goog.math.toDegrees(carto.latitude),
-              lng = goog.math.toDegrees(carto.longitude);
-          e['latlng'] = {'lat': lat, 'lng': lng};
+            lng = goog.math.toDegrees(carto.longitude);
+          e['latlng'] = {
+            'lat': lat,
+            'lng': lng
+          };
           e['latitude'] = lat;
           e['longitude'] = lng;
           e['altitude'] = carto.height;
@@ -525,7 +544,7 @@ weapi.App.prototype.on = function(type, listener) {
  * @param {string|number|null} typeOrKey Event type or listenKey.
  * @param {function(Event)} listener Function that was used to register.
  */
-weapi.App.prototype.off = function(typeOrKey, listener) {
+weapi.App.prototype.off = function (typeOrKey, listener) {
   if (goog.isDefAndNotNull(listener)) {
     var key = listener[goog.getUid(this) + '___eventKey_' + typeOrKey];
     if (goog.isDefAndNotNull(key)) goog.events.unlistenByKey(key);
@@ -539,7 +558,7 @@ weapi.App.prototype.off = function(typeOrKey, listener) {
  * Unregister all event listeners of certain type.
  * @param {string} type Event type.
  */
-weapi.App.prototype.offAll = function(type) {
+weapi.App.prototype.offAll = function (type) {
   goog.events.removeAll(this.canvas, type);
 };
 
@@ -550,15 +569,16 @@ weapi.App.prototype.offAll = function(type) {
  * @param {string=} opt_iconUrl URL of the icon to use instead of the default.
  * @param {number=} opt_width Width of the icon.
  * @param {number=} opt_height Height of the icon.
+ * @param {string=} txt txt into marker
  * @return {!weapi.markers.AbstractMarker} New marker.
  */
-weapi.App.prototype.initMarker = function(latOrMark, lon,
-                                          opt_iconUrl, opt_width, opt_height) {
+weapi.App.prototype.initMarker = function (latOrMark, lon,
+  opt_iconUrl, opt_width, opt_height, txt) {
   var mark;
   if (goog.isNumber(latOrMark)) {
     mark = new weapi.markers.PrettyMarker(goog.math.toRadians(latOrMark),
-                                          goog.math.toRadians(lon),
-                                          opt_iconUrl, opt_width, opt_height);
+      goog.math.toRadians(lon),
+      opt_iconUrl, opt_width, opt_height, txt);
   } else {
     mark = latOrMark;
   }
@@ -574,7 +594,7 @@ weapi.App.prototype.initMarker = function(latOrMark, lon,
 /**
  * @param {!weapi.markers.AbstractMarker} marker .
  */
-weapi.App.prototype.removeMarker = function(marker) {
+weapi.App.prototype.removeMarker = function (marker) {
   this.markerManager.removeMarkerEx(marker);
 
   this.sceneChanged = true;
@@ -587,7 +607,7 @@ weapi.App.prototype.removeMarker = function(marker) {
  * @return {Array.<number>} Pixel data
  *                          [r 0-255, g 0-255, b 0-255, a 0-1, zoomLevel].
  */
-weapi.App.prototype.getBestAvailablePixelColorFromLayer = function(lat, lng) {
+weapi.App.prototype.getBestAvailablePixelColorFromLayer = function (lat, lng) {
   var layer = this.scene.imageryLayers.get(0);
   var provider = layer.imageryProvider;
   var scheme = provider.tilingScheme;
@@ -599,12 +619,12 @@ weapi.App.prototype.getBestAvailablePixelColorFromLayer = function(lat, lng) {
   while (zoom >= 0) {
     var tileXY = scheme['positionToTileXY'](position, zoom);
     var imagery = layer['getImageryFromCache'](tileXY.x, tileXY.y,
-                                               zoom, undefined);
+      zoom, undefined);
     if (imagery['__image__']) {
       var pixelX = Math.floor((tileXY.x - Math.floor(tileXY.x)) *
-                   provider.tileWidth);
+        provider.tileWidth);
       var pixelY = Math.floor((tileXY.y - Math.floor(tileXY.y)) *
-                   provider.tileHeight);
+        provider.tileHeight);
 
       var canvas = goog.dom.createElement('canvas');
       canvas.width = 1;
