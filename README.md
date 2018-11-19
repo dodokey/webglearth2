@@ -1,7 +1,7 @@
 [![WebGL Earth](https://cloud.githubusercontent.com/assets/59284/3467435/90001280-0290-11e4-9d6f-04fa4479cea0.png)](http://www.webglearth.com/)
 
 # WebGL Earth 2.0
-hahahaggggg
+
 
 Open-source virtual planet web application running in any web browser with support for WebGL HTML5 standard. Mobile devices such as iPhone, iPad or Android based mobile phones are going to be supported too. It is a free software and a community driven project.
 
