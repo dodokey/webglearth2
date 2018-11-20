@@ -220,8 +220,6 @@ exportSymbolL('WebGLEarth.Map.prototype.removeFrom', function (app) {
 // });
 //Dadadadadada
 exportSymbolL('WE.marker', function (pos, opt_iconUrl, opt_width, opt_height, txt) {
-  if (txt === undefined) txt = '';
-
   if (!goog.isArray(pos)) pos = [pos['lat'], pos['lng']];
   var mark = new weapi.markers.PrettyMarker(goog.math.toRadians(pos[0]),
     goog.math.toRadians(pos[1]),
