@@ -1,0 +1,83 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="robots" content="index, all" />
+  <title>WebGL Earth API - Demo</title>
+
+  <script src="api.js"></script>
+  <script>
+    var app;
+    var mapB, mapO;
+    var customTMS, wms;
+
+    function startWE() {
+      app = new WebGLEarth('webglearthdiv', {
+        atmosphere: true,
+        sky: false,
+        position: [47.2, 8.5],
+        altitude: 7000000,
+        panning: true,
+        tilting: true,
+        zooming: true,
+        proxyHost: 'http://srtm.webglearth.com/cgi-bin/corsproxy.fcgi?url='
+      });
+
+      // app.showMiniGlobe('../deploy/world512.jpg', 128);
+
+      // Get your own key from: https://www.bingmapsportal.com/
+      var bingKey = 'AuCVBGPx1VQORSzUMGplLr3JTilLi3lUA3WnqT5SbKcUP5H2s9mh9XsHfy_VKmdG';
+
+      mapB = app.initMap(WebGLEarth.Maps.BING, ['AerialWithLabels', bingKey]);
+      mapO = app.initMap(WebGLEarth.Maps.OSM);
+      app.setBaseMap(mapO);
+
+      mapBo = app.initMap(WebGLEarth.Maps.BING, ['AerialWithLabels', bingKey]);
+      mapOo = app.initMap(WebGLEarth.Maps.OSM);
+
+      customTMS = app.initMap(WebGLEarth.Maps.CUSTOM, ['TMS',
+        'http://webglearth.googlecode.com/svn/resources/tms/{z}/{x}/{y}.jpg', 1, 5, 256, true
+      ]);
+
+      wms = app.initMap(WebGLEarth.Maps.WMS, ['BlueMarble', 'http://demo.mapserver.org/cgi-bin/wms?',
+        '1.1.1', 'bluemarble,continents,country_bounds,cities', 'EPSG:3857', 'image/png', '',
+        '', 1, 15
+      ]);
+
+      //make the overlays transparent
+      mapBo.setOpacity(0.5);
+      mapOo.setOpacity(0.5);
+
+      //Print coordinates of the mouse
+      var printCoords = function (e) {
+        console.log(e.latitude + ', ' + e.longitude);
+        // document.getElementById('coordsbox').innerHTML =
+        //   (e.latitude + ', ' + e.longitude) + ' at ' +
+        //   (e.offsetX + ', ' + e.offsetY);
+      };
+      app.on('mousemove', printCoords);
+
+      //Show coordinates on click, then unregister the listener
+      // var listenKey;
+      // var alertCoords = function (e) {
+      //   alert(e.latitude + ', ' + e.longitude);
+      //   app.off(listenKey);
+      // };
+      // listenKey = app.on('click', alertCoords);
+    }
+
+    var colorQueryMarker;
+    var intervalTimer;
+  </script>
+
+</head>
+
+<body onload="javascript:startWE()">
+  <div id="webglearthdiv" style="width:600px;height:400px;"></div>
+  <div id="infodiv" style="height:20px;width:900px;"></div>
+  <div id="coordsbox" style="height:20px;width:900px;"></div>
+</body>
+
+</html>
